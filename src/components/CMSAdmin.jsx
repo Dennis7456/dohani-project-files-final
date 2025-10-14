@@ -353,7 +353,7 @@ function CMSAdmin() {
                     type="email"
                     value={contact.email || ''}
                     onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                    placeholder="info@dohanmedicare.com"
+                    placeholder="dohanimedicare@gmail.com"
                   />
                 </div>
                 <div>

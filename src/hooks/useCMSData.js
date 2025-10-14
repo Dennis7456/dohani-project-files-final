@@ -99,9 +99,9 @@ export const fallbackData = {
     }
   ],
   contactInfo: {
-    phone: '+254-XXX-XXX-XXX',
-    emergencyPhone: '+254-XXX-XXX-XXX',
-    email: 'info@dohanmedicare.com',
+    phone: '0798057622',
+    emergencyPhone: '0798057622',
+    email: 'dohanimedicare@gmail.com',
     location: 'Dohani Medicare Hospital'
   },
   workingHours: {

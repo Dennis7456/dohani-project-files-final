@@ -6,6 +6,7 @@ import { client } from '@/lib/graphql.js'
 import './index.css'
 import App from '@/App.jsx'
 import CMSAdmin from '@/components/CMSAdmin'
+import AppointmentAdmin from '@/components/AppointmentAdmin'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<CMSAdmin />} />
+          <Route path="/admin/appointments" element={<AppointmentAdmin />} />
         </Routes>
       </BrowserRouter>
     </ApolloProvider>

@@ -43,13 +43,13 @@ const cmsData = {
     laboratory: 'Monday to Saturday: 7:00 AM - 7:00 PM, Sunday: 8:00 AM - 2:00 PM'
   },
   contact: {
-    phone: '+254-XXX-XXX-XXX',
-    email: 'info@dohanmedicare.com',
-    emergencyPhone: '+254-XXX-XXX-XXX (Emergency Line)',
+    phone: '0798057622',
+    email: 'dohanimedicare@gmail.com',
+    emergencyPhone: '0798057622 (Emergency Line)',
     location: 'Dohani Medicare Hospital, Open 24 Hours'
   },
   appointments: {
-    howToBook: 'You can book an appointment by calling our reception at +254-XXX-XXX-XXX, sending an email to info@dohanmedicare.com, or using our online booking system on the website.',
+    howToBook: 'You can book an appointment by calling our reception at 0798057622, sending an email to dohanimedicare@gmail.com, or using our online booking system on the website.',
     cancellation: 'To cancel or reschedule an appointment, please call us at least 24 hours in advance.',
     walkIn: 'Walk-in patients are welcome, but appointments are recommended to minimize waiting time.'
   },

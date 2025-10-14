@@ -221,3 +221,71 @@ Once the basic setup is complete, you can:
 2. Configure Mailjet for email notifications
 3. Implement the admin interface updates
 4. Add webhook handlers for real-time updates
+#
+## 7. Appointment
+
+**Model Name:** `Appointment`
+**API ID:** `appointment`
+**Plural API ID:** `appointments`
+
+**Fields:**
+- `firstName` (Single Line Text) - Required
+- `lastName` (Single Line Text) - Required
+- `email` (Single Line Text) - Required
+- `phone` (Single Line Text) - Required
+- `dateOfBirth` (Single Line Text) - Optional
+- `appointmentType` (Single Line Text) - Required
+- `preferredDate` (Date) - Required
+- `preferredTime` (Single Line Text) - Required
+- `doctor` (Single Line Text) - Optional
+- `reason` (Multi Line Text) - Required
+- `symptoms` (Multi Line Text) - Optional
+- `previousVisit` (Boolean) - Required, Default: false
+- `emergencyContact` (Single Line Text) - Optional
+- `hasInsurance` (Boolean) - Required, Default: false
+- `insuranceProvider` (Single Line Text) - Optional
+- `policyNumber` (Single Line Text) - Optional
+- `status` (Enumeration) - Required, Default: PENDING
+  - Values: PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW, RESCHEDULED
+
+**Permissions:**
+- Public: Create only
+- Admin: Full access
+
+**Note:** This model stores all appointment bookings from patients
+
+## GraphQL Schema Reference
+
+```graphql
+type Appointment {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  dateOfBirth: String
+  appointmentType: String!
+  preferredDate: Date!
+  preferredTime: String!
+  doctor: String
+  reason: String!
+  symptoms: String
+  previousVisit: Boolean!
+  emergencyContact: String
+  hasInsurance: Boolean!
+  insuranceProvider: String
+  policyNumber: String
+  status: AppointmentStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+```

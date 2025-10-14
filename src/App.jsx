@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useHomepageData } from '@/hooks/useCMSData'
+import AppointmentBooking from '@/components/AppointmentBooking'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Menu, X, Phone, Mail, MapPin, Clock, ChevronRight, MessageCircle, Heart, Users, Award, Calendar, Stethoscope, Baby, Activity, Pill, Home as HomeIcon, Info, Briefcase, Contact, Newspaper } from 'lucide-react'
@@ -20,6 +21,9 @@ function App() {
   // Form state
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: null })
+  
+  // Appointment booking state
+  const [showAppointmentBooking, setShowAppointmentBooking] = useState(false)
   
   // Get CMS data from Hygraph
   const { loading: cmsLoading, error: cmsError, services: cmsServices, contactInfo, workingHours, newsArticles } = useHomepageData()
@@ -155,7 +159,10 @@ function App() {
                   {item.name}
                 </a>
               ))}
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setShowAppointmentBooking(true)}
+              >
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Appointment
               </Button>
@@ -189,7 +196,10 @@ function App() {
                   <span>{item.name}</span>
                 </a>
               ))}
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setShowAppointmentBooking(true)}
+              >
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Appointment
               </Button>
@@ -210,7 +220,11 @@ function App() {
                 Dohani Medicare provides comprehensive healthcare services with a commitment to excellence, compassion, and innovation. Your health is our priority.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button 
+                  size="lg" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => setShowAppointmentBooking(true)}
+                >
                   <Calendar className="mr-2 h-5 w-5" />
                   Book Appointment
                 </Button>
@@ -373,7 +387,7 @@ function App() {
                       <Phone className="h-6 w-6 text-blue-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-blue-900 mb-1">Phone</h3>
-                        <p className="text-gray-600">{contactInfo?.phone || '+254-XXX-XXX-XXX'}</p>
+                        <p className="text-gray-600">{contactInfo?.phone || '0798057622'}</p>
                         <p className="text-sm text-gray-500">Available 24/7</p>
                       </div>
                     </div>
@@ -381,7 +395,7 @@ function App() {
                       <Mail className="h-6 w-6 text-blue-600 mt-1" />
                       <div>
                         <h3 className="font-semibold text-blue-900 mb-1">Email</h3>
-                        <p className="text-gray-600">{contactInfo?.email || 'info@dohanmedicare.com'}</p>
+                        <p className="text-gray-600">{contactInfo?.email || 'dohanimedicare@gmail.com'}</p>
                         <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                       </div>
                     </div>
@@ -558,8 +572,8 @@ function App() {
             <div>
               <h3 className="font-semibold text-lg mb-4">Contact</h3>
               <ul className="space-y-2 text-blue-200">
-                <li>Phone: {contactInfo?.phone || '+254-XXX-XXX-XXX'}</li>
-                <li>Email: {contactInfo?.email || 'info@dohanmedicare.com'}</li>
+                <li>Phone: {contactInfo?.phone || '0798057622'}</li>
+                <li>Email: {contactInfo?.email || 'dohanimedicare@gmail.com'}</li>
                 <li>Open 24/7</li>
               </ul>
             </div>
@@ -572,6 +586,12 @@ function App() {
 
       {/* AI ChatBot Component */}
       <ChatBot />
+
+      {/* Appointment Booking Modal */}
+      <AppointmentBooking 
+        isOpen={showAppointmentBooking}
+        onClose={() => setShowAppointmentBooking(false)}
+      />
     </div>
   )
 }

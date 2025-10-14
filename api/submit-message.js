@@ -91,7 +91,7 @@ const getUserConfirmationTemplate = (messageData) => `
           <h3 style="color: #1e40af;">Contact Information</h3>
           <p><strong>Phone:</strong> +254-XXX-XXX-XXX</p>
           <p><strong>Emergency:</strong> +254-XXX-XXX-XXX</p>
-          <p><strong>Email:</strong> info@dohanmedicare.com</p>
+          <p><strong>Email:</strong> dohanimedicare@gmail.com</p>
           <p><strong>Location:</strong> Dohani Medicare Hospital</p>
         </div>
         
