@@ -1,0 +1,10 @@
+{
+  "name": "dohani-medicare-api",
+  "version": "1.0.0",
+  "description": "Netlify serverless functions for Dohani Medicare website",
+  "main": "index.js",
+  "dependencies": {
+    "graphql-request": "^5.2.0",
+    "node-mailjet": "^6.0.5"
+  }
+}
