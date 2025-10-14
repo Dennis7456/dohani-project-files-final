@@ -21,7 +21,8 @@
     "tailwind-merge": "^2.0.0",
     "@apollo/client": "^3.8.7",
     "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^6.1.0",
+    "node-mailjet": "^6.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
