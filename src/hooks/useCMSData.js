@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client'
-import { GET_HOMEPAGE_DATA, GET_ALL_SERVICES, GET_CONTACT_INFO, GET_WORKING_HOURS } from '../graphql/queries'
+import { GET_HOMEPAGE_DATA, GET_ALL_SERVICES, GET_CONTACT_INFO, GET_WORKING_HOURS } from '@/graphql/queries'
 
 // Hook for homepage data
 export const useHomepageData = () => {
