@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Menu, X, Phone, Mail, MapPin, Clock, ChevronRight, MessageCircle, Heart, Users, Award, Calendar, Stethoscope, Baby, Activity, Pill, Home as HomeIcon, Info, Briefcase, Contact, Newspaper } from 'lucide-react'
 import ChatBot from '@/components/ChatBot'
 import './App.css'
-import logo from '@/assets/65436CA2-9B7D-4E78-BAC9-862771EE843F(1).png'
+import logo from '@/assets/official_dohani_logo.jpg'
 import reception from '@/assets/30e30f5b-7f8d-49be-84c2-258988ded82d(1).jpeg'
 import doctor from '@/assets/e60976b0-01ab-4d9c-a15a-a18ff48a5ae5(1).jpeg'
 import ward from '@/assets/78687735-b5fd-46af-a4cc-ca8ab3fcd7d1(1).jpeg'
@@ -155,7 +155,7 @@ function App() {
                   {item.name}
                 </a>
               ))}
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Appointment
               </Button>
@@ -189,7 +189,7 @@ function App() {
                   <span>{item.name}</span>
                 </a>
               ))}
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Appointment
               </Button>
@@ -210,7 +210,7 @@ function App() {
                 Dohani Medicare provides comprehensive healthcare services with a commitment to excellence, compassion, and innovation. Your health is our priority.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Calendar className="mr-2 h-5 w-5" />
                   Book Appointment
                 </Button>
@@ -478,7 +478,7 @@ function App() {
                     <Button 
                       type="submit"
                       disabled={formStatus.loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                     >
                       {formStatus.loading ? 'Sending...' : 'Send Message'}
                     </Button>
@@ -526,7 +526,7 @@ function App() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <img src={logo} alt="Dohani Medicare" className="h-12 w-auto mb-4 brightness-0 invert" />
+              <img src={logo} alt="Dohani Medicare" className="h-12 w-auto mb-4" />
               <p className="text-blue-200">
                 Quality healthcare services with compassion and excellence.
               </p>
