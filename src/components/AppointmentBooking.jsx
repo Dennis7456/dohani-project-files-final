@@ -119,7 +119,7 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl border-0">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
           <div className="flex justify-between items-center">
             <div>
@@ -139,7 +139,7 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="p-6 bg-white">
           {/* Progress Bar */}
           {step < 5 && (
             <div className="mb-6">

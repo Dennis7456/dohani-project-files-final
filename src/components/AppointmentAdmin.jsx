@@ -503,7 +503,7 @@ const AppointmentAdmin = () => {
         {/* Appointment Details Modal */}
         {showDetails && selectedAppointment && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl border-0">
               <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
                 <div className="flex justify-between items-center">
                   <div>
@@ -522,7 +522,7 @@ const AppointmentAdmin = () => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 space-y-6">
+              <CardContent className="p-6 space-y-6 bg-white">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-semibold text-gray-900">Patient Information</h4>

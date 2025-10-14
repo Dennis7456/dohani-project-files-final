@@ -80,7 +80,7 @@
   - Implement SEO optimization for news articles
   - _Requirements: 3.1, 3.2, 3.4_
 
-- [-] 8. Implement doctor profile management
+- [x] 8. Implement doctor profile management
 - [ ] 8.1 Create doctor profile content model and admin interface
   - Set up doctor profile fields with photo upload
   - Configure specialty and qualification management

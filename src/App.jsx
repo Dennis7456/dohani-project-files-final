@@ -17,14 +17,14 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [scrolled, setScrolled] = useState(false)
-  
+
   // Form state
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: null })
-  
+
   // Appointment booking state
   const [showAppointmentBooking, setShowAppointmentBooking] = useState(false)
-  
+
   // Get CMS data from Hygraph
   const { loading: cmsLoading, error: cmsError, services: cmsServices, contactInfo, workingHours, newsArticles } = useHomepageData()
 
@@ -146,7 +146,7 @@ function App() {
               <img src={logo} alt="Dohani Medicare" className="h-12 w-auto" />
               <span className="text-2xl font-bold text-blue-900">Dohani Medicare</span>
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               {navigation.map((item) => (
@@ -159,7 +159,7 @@ function App() {
                   {item.name}
                 </a>
               ))}
-              <Button 
+              <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={() => setShowAppointmentBooking(true)}
               >
@@ -196,7 +196,7 @@ function App() {
                   <span>{item.name}</span>
                 </a>
               ))}
-              <Button 
+              <Button
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={() => setShowAppointmentBooking(true)}
               >
@@ -220,8 +220,8 @@ function App() {
                 Dohani Medicare provides comprehensive healthcare services with a commitment to excellence, compassion, and innovation. Your health is our priority.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => setShowAppointmentBooking(true)}
                 >
@@ -437,8 +437,8 @@ function App() {
                       </div>
                       <h3 className="text-lg font-semibold text-green-800 mb-2">Message Sent Successfully!</h3>
                       <p className="text-green-600">Thank you for contacting us. We'll get back to you soon.</p>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="mt-4"
                         onClick={() => setFormStatus({ loading: false, success: false, error: null })}
                       >
@@ -489,7 +489,7 @@ function App() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                       ></textarea>
                     </div>
-                    <Button 
+                    <Button
                       type="submit"
                       disabled={formStatus.loading}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
@@ -588,7 +588,7 @@ function App() {
       <ChatBot />
 
       {/* Appointment Booking Modal */}
-      <AppointmentBooking 
+      <AppointmentBooking
         isOpen={showAppointmentBooking}
         onClose={() => setShowAppointmentBooking(false)}
       />
