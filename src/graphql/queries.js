@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 // Get all CMS data for homepage
 export const GET_HOMEPAGE_DATA = gql`
   query GetHomepageData {
-    medicalServices(stage: PUBLISHED) {
+    medicalServices {
       id
       name
       description {
@@ -63,7 +63,7 @@ export const GET_HOMEPAGE_DATA = gql`
 // Get all medical services
 export const GET_ALL_SERVICES = gql`
   query GetAllServices {
-    medicalServices(orderBy: name_ASC, stage: PUBLISHED) {
+    medicalServices(orderBy: name_ASC) {
       id
       name
       description {

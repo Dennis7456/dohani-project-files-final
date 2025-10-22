@@ -70,13 +70,30 @@ export const useHomepageData = () => {
   })
 
   // Debug logging
-  // console.log('Homepage Data Debug:', {
-  //   loading,
-  //   error,
-  //   data,
-  //   medicalServices: data?.medicalServices,
-  //   medicalServicesCount: data?.medicalServices?.length
-  // })
+  console.log('Homepage Data Debug:', {
+    loading,
+    error: error?.message,
+    data,
+    medicalServices: data?.medicalServices,
+    medicalServicesCount: data?.medicalServices?.length,
+    endpoint: import.meta.env.VITE_HYGRAPH_ENDPOINT,
+    hasToken: !!import.meta.env.VITE_HYGRAPH_TOKEN,
+    cmsServicesLength: data?.medicalServices?.map(service => ({
+      id: service.id,
+      name: service.name,
+      title: formatServiceTitle(service.name),
+      description: service.description?.text || service.description || '',
+      keywords: service.keywords || [],
+      icon: getServiceIcon(service.name),
+      featured: service.featured || false,
+      servicesOffered: service.servicesOffered || [],
+      commonProcedures: service.commonProcedures
+    }))?.length || 0
+  })
+  
+  if (error) {
+    console.error('GraphQL Error Details:', error)
+  }
 
   // Temporary fallback services for debugging
   const fallbackServices = !loading && (!data?.medicalServices || data.medicalServices.length === 0) ? [

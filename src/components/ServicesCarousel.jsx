@@ -83,33 +83,34 @@ const ServicesCarousel = ({ services, loading = false }) => {
     }
   }
 
+  // Initialize mobile state properly
+  const [isMobile, setIsMobile] = useState(false)
+  const [visibleServices, setVisibleServices] = useState([])
+
   // Calculate visible services based on screen size
-  const getVisibleServices = () => {
+  const getVisibleServices = (mobile = isMobile) => {
     // On mobile, show all services in a scrollable grid
-    if (window.innerWidth < 768) {
+    if (mobile) {
       return services.map((service, index) => ({ ...service, originalIndex: index }))
     }
     
     // On tablet and desktop, use carousel behavior
     const visibleCount = window.innerWidth >= 1024 ? 3 : 2
-    const visibleServices = []
+    const visibleServicesArray = []
 
     for (let i = 0; i < visibleCount; i++) {
       const index = (currentIndex + i) % services.length
-      visibleServices.push({ ...services[index], originalIndex: index })
+      visibleServicesArray.push({ ...services[index], originalIndex: index })
     }
 
-    return visibleServices
+    return visibleServicesArray
   }
-
-  const [visibleServices, setVisibleServices] = useState(getVisibleServices())
-  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
-      setVisibleServices(getVisibleServices())
+      setVisibleServices(getVisibleServices(mobile))
     }
 
     handleResize() // Initial call
@@ -119,7 +120,7 @@ const ServicesCarousel = ({ services, loading = false }) => {
 
   useEffect(() => {
     setVisibleServices(getVisibleServices())
-  }, [currentIndex])
+  }, [currentIndex, isMobile])
 
   // Show loading state
   if (loading) {
@@ -139,6 +140,18 @@ const ServicesCarousel = ({ services, loading = false }) => {
 
   return (
     <div className="relative">
+      {/* Debug info - temporarily enabled */}
+      {import.meta.env.MODE === 'development' && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <p className="text-yellow-800 text-sm">
+            <strong>Services Debug:</strong> Total services: {services.length} | 
+            Is Mobile: {isMobile ? 'true' : 'false'} | 
+            Visible services: {visibleServices.length} | 
+            Window width: {typeof window !== 'undefined' ? window.innerWidth : 'undefined'}
+          </p>
+        </div>
+      )}
+      
       {/* Mobile: Show all services in scrollable grid */}
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4 px-2">
