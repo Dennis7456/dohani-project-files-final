@@ -496,16 +496,14 @@ function App() {
             </p>
           </div>
           {/* Debug info - commented out for production */}
-          {/* {import.meta.env.MODE === 'development' && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
-              <p className="text-yellow-800 text-sm">
-                <strong>Debug Info:</strong>
-                {doctorsLoading ? ' Loading doctors...' :
-                  cmsDoctors?.length > 0 ? ` Found ${cmsDoctors.length} doctors in CMS` :
-                    ' No doctors found in CMS - showing fallback placeholders'}
-              </p>
-            </div>
-          )} */}
+          {/* <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+            <p className="text-yellow-800 text-sm">
+              <strong>Debug Info:</strong>
+              {doctorsLoading ? ' Loading doctors...' :
+                cmsDoctors?.length > 0 ? ` Found ${cmsDoctors.length} doctors in CMS` :
+                  ' No doctors found in CMS - showing fallback placeholders'}
+            </p>
+          </div> */}
 
           {doctorsLoading ? (
             // Show loading skeletons while loading

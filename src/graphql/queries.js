@@ -205,6 +205,32 @@ export const GET_DOCTORS = gql`
   }
 `
 
+// Get single doctor by ID
+export const GET_DOCTOR = gql`
+  query GetDoctor($id: ID!) {
+    doctor(where: { id: $id }) {
+      id
+      name
+      specialty
+      qualifications
+      bio {
+        text
+        html
+      }
+      photo {
+        url
+        width
+        height
+      }
+      consultationHours
+      available
+      experience
+      languages
+      consultationFee
+    }
+  }
+`
+
 // Get messages (for admin)
 export const GET_MESSAGES = gql`
   query GetMessages($messageStatus: MessageStatus) {

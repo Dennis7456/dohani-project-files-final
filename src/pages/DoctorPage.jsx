@@ -2,24 +2,31 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Button } from '@/components/ui/button.jsx'
-import { Calendar, Phone, Mail, MapPin, Clock, Award, GraduationCap, Stethoscope, Star } from 'lucide-react'
-import { useDoctors } from '@/hooks/useCMSData'
+import { Calendar, Phone, Mail, MapPin, Clock, Award, GraduationCap, Stethoscope } from 'lucide-react'
+import { useDoctors, useDoctor } from '@/hooks/useCMSData'
 import { PageLoading } from '@/components/LoadingSpinner'
 import AppointmentBooking from '@/components/AppointmentBooking'
 
 function DoctorPage() {
   const { id } = useParams()
-  const { doctors, loading } = useDoctors()
+  
+  // Try to get doctor by ID first
+  const { doctor: cmsDoctor, loading: doctorLoading } = useDoctor(id)
+  
+  // Fallback: get all doctors and find by slug/name
+  const { doctors, loading: doctorsLoading } = useDoctors()
   
   // Appointment booking state
   const [showAppointmentBooking, setShowAppointmentBooking] = useState(false)
   
   // Find the doctor by ID or slug
-  const doctor = doctors?.find(d => 
+  const doctor = cmsDoctor || doctors?.find(d => 
     d.id === id || 
     d.name?.toLowerCase().replace(/\s+/g, '-') === id ||
     d.slug === id
   )
+  
+  const loading = doctorLoading || doctorsLoading
 
   // Fallback doctor data for development
   const fallbackDoctors = {
@@ -57,9 +64,7 @@ Her areas of special interest include diabetes management, hypertension care, wo
       ],
       languages: ['English', 'Swahili', 'Kikuyu'],
       workingHours: 'Monday to Friday: 8:00 AM - 5:00 PM, Saturday: 8:00 AM - 1:00 PM',
-      consultationFee: 'KSh 2,500',
-      rating: 4.8,
-      reviews: 156
+      consultationFee: 'KSh 2,500'
     },
     'dr-james-ochieng': {
       name: 'Dr. James Ochieng',
@@ -95,9 +100,7 @@ He is particularly passionate about diabetes care and has helped hundreds of pat
       ],
       languages: ['English', 'Swahili', 'Luo'],
       workingHours: 'Monday to Friday: 9:00 AM - 6:00 PM, Saturday: 9:00 AM - 2:00 PM',
-      consultationFee: 'KSh 3,500',
-      rating: 4.9,
-      reviews: 203
+      consultationFee: 'KSh 3,500'
     },
     'dr-amina-mohamed': {
       name: 'Dr. Amina Mohamed',
@@ -133,9 +136,7 @@ Her approach to patient care is centered on creating a comfortable, supportive e
       ],
       languages: ['English', 'Swahili', 'Arabic'],
       workingHours: 'Monday to Friday: 8:00 AM - 6:00 PM, Saturday: 8:00 AM - 12:00 PM',
-      consultationFee: 'KSh 3,000',
-      rating: 4.9,
-      reviews: 187
+      consultationFee: 'KSh 3,000'
     }
   }
 
@@ -168,20 +169,8 @@ Her approach to patient care is centered on creating a comfortable, supportive e
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl font-bold mb-4">{currentDoctor.name}</h1>
-              <p className="text-2xl text-blue-100 mb-6">{currentDoctor.title}</p>
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`h-5 w-5 ${i < Math.floor(currentDoctor.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                    />
-                  ))}
-                  <span className="ml-2 text-blue-100">
-                    {currentDoctor.rating} ({currentDoctor.reviews} reviews)
-                  </span>
-                </div>
-              </div>
+              <p className="text-2xl text-blue-100 mb-6">{currentDoctor.specialty || currentDoctor.title}</p>
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   onClick={() => setShowAppointmentBooking(true)}
@@ -201,12 +190,28 @@ Her approach to patient care is centered on creating a comfortable, supportive e
               </div>
             </div>
             <div className="flex justify-center">
-              <div className="w-80 h-80 bg-white rounded-2xl shadow-2xl flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <Stethoscope className="h-24 w-24 mx-auto mb-4" />
-                  <p className="text-lg font-medium">Dr. {currentDoctor.name.split(' ').pop()}</p>
-                  <p className="text-sm">{currentDoctor.specialization}</p>
-                </div>
+              <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 bg-white rounded-2xl shadow-2xl overflow-hidden">
+                {currentDoctor.photo?.url ? (
+                  <img
+                    src={currentDoctor.photo.url}
+                    alt={currentDoctor.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : currentDoctor.image ? (
+                  <img
+                    src={currentDoctor.image}
+                    alt={currentDoctor.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center text-gray-400">
+                      <Stethoscope className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 mx-auto mb-4" />
+                      <p className="text-base sm:text-lg font-medium">Dr. {currentDoctor.name.split(' ').pop()}</p>
+                      <p className="text-xs sm:text-sm">{currentDoctor.specialization || currentDoctor.specialty}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -220,106 +225,96 @@ Her approach to patient care is centered on creating a comfortable, supportive e
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* About */}
-              <div>
-                <h2 className="text-3xl font-bold text-blue-900 mb-6">About Dr. {currentDoctor.name.split(' ').pop()}</h2>
-                <div className="prose prose-lg max-w-none text-gray-600">
-                  <p className="whitespace-pre-line">{currentDoctor.bio}</p>
-                </div>
-              </div>
-
-              {/* Specialties */}
-              <div>
-                <h3 className="text-2xl font-bold text-blue-900 mb-6">Areas of Expertise</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {currentDoctor.specialties?.map((specialty, index) => (
-                    <Card key={index} className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                          <Stethoscope className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <span className="font-medium text-gray-900">{specialty}</span>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Education & Certifications */}
-              <div className="grid md:grid-cols-2 gap-8">
+              {currentDoctor.bio && (
                 <div>
-                  <h3 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                    <GraduationCap className="h-6 w-6 mr-2" />
-                    Education
-                  </h3>
-                  <div className="space-y-3">
-                    {currentDoctor.education?.map((edu, index) => (
-                      <div key={index} className="border-l-4 border-blue-200 pl-4">
-                        <p className="font-medium text-gray-900">{edu}</p>
-                      </div>
-                    ))}
+                  <h2 className="text-3xl font-bold text-blue-900 mb-6">About Dr. {currentDoctor.name.split(' ').pop()}</h2>
+                  <div className="prose prose-lg max-w-none text-gray-600">
+                    <p className="whitespace-pre-line">{currentDoctor.bio}</p>
                   </div>
                 </div>
+              )}
+
+              {/* Qualifications */}
+              {currentDoctor.qualifications && currentDoctor.qualifications.length > 0 && (
                 <div>
                   <h3 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
                     <Award className="h-6 w-6 mr-2" />
-                    Certifications
+                    Qualifications
                   </h3>
-                  <div className="space-y-3">
-                    {currentDoctor.certifications?.map((cert, index) => (
-                      <div key={index} className="border-l-4 border-green-200 pl-4">
-                        <p className="font-medium text-gray-900">{cert}</p>
-                      </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {currentDoctor.qualifications.map((qualification, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <GraduationCap className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <span className="font-medium text-gray-900">{qualification}</span>
+                        </div>
+                      </Card>
                     ))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Quick Info */}
+              {/* Doctor Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Information</CardTitle>
+                  <CardTitle>Doctor Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Experience</h4>
-                    <p className="text-gray-600">{currentDoctor.experience}</p>
+                    <h4 className="font-semibold text-gray-900 mb-2">Specialty</h4>
+                    <p className="text-gray-600">{currentDoctor.specialty || currentDoctor.specialization}</p>
                   </div>
+                  {currentDoctor.qualifications && currentDoctor.qualifications.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Qualifications</h4>
+                      <div className="space-y-1">
+                        {currentDoctor.qualifications.map((qualification, index) => (
+                          <p key={index} className="text-gray-600 text-sm">{qualification}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Specialization</h4>
-                    <p className="text-gray-600">{currentDoctor.specialization}</p>
+                    <h4 className="font-semibold text-gray-900 mb-2">Availability</h4>
+                    <p className="text-gray-600">
+                      {currentDoctor.available ? 'Available for consultations' : 'Currently unavailable'}
+                    </p>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Languages</h4>
-                    <p className="text-gray-600">{currentDoctor.languages?.join(', ')}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Consultation Fee</h4>
-                    <p className="text-gray-600">{currentDoctor.consultationFee}</p>
-                  </div>
+                  {currentDoctor.consultationHours && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Consultation Hours</h4>
+                      <p className="text-gray-600">{currentDoctor.consultationHours}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
               {/* Schedule */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Clock className="h-5 w-5 mr-2 text-blue-600" />
-                    Schedule
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{currentDoctor.workingHours}</p>
-                  <Button 
-                    onClick={() => setShowAppointmentBooking(true)}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    Book Appointment
-                  </Button>
-                </CardContent>
-              </Card>
+              {currentDoctor.consultationHours && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                      Consultation Hours
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4">{currentDoctor.consultationHours}</p>
+                    <Button 
+                      onClick={() => setShowAppointmentBooking(true)}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      disabled={!currentDoctor.available}
+                    >
+                      {currentDoctor.available ? 'Book Appointment' : 'Currently Unavailable'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Contact */}
               <Card>
@@ -345,39 +340,7 @@ Her approach to patient care is centered on creating a comfortable, supportive e
                 </CardContent>
               </Card>
 
-              {/* Patient Reviews */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-blue-600" />
-                    Patient Reviews
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-blue-600">{currentDoctor.rating}</div>
-                    <div className="flex justify-center space-x-1 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-4 w-4 ${i < Math.floor(currentDoctor.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">Based on {currentDoctor.reviews} reviews</p>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="border-l-4 border-blue-200 pl-3">
-                      <p className="text-gray-600">"Excellent doctor, very thorough and caring."</p>
-                      <p className="text-gray-500 text-xs mt-1">- Patient Review</p>
-                    </div>
-                    <div className="border-l-4 border-blue-200 pl-3">
-                      <p className="text-gray-600">"Professional and knowledgeable. Highly recommended."</p>
-                      <p className="text-gray-500 text-xs mt-1">- Patient Review</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+
             </div>
           </div>
         </div>
