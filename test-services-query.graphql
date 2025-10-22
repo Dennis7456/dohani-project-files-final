@@ -1,0 +1,42 @@
+# Test query to check if MedicalServices exist in Hygraph
+# Run this in your Hygraph API Playground to debug
+
+query TestMedicalServices {
+  medicalServices {
+    id
+    name
+    featured
+    description {
+      text
+    }
+    keywords
+    icon
+    servicesOffered
+  }
+}
+
+# If the above doesn't work, try this simpler version:
+query SimpleMedicalServices {
+  medicalServices {
+    id
+    name
+  }
+}
+
+# Check if the model name is different:
+query CheckServices {
+  services {
+    id
+    name
+  }
+}
+
+# Check available types in your schema:
+query IntrospectTypes {
+  __schema {
+    types {
+      name
+      kind
+    }
+  }
+}

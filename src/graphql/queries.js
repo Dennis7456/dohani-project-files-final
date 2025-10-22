@@ -3,12 +3,21 @@ import { gql } from '@apollo/client'
 // Get all CMS data for homepage
 export const GET_HOMEPAGE_DATA = gql`
   query GetHomepageData {
-    medicalServices(where: { featured: true }) {
+    medicalServices(stage: PUBLISHED) {
       id
       name
-      description
+      description {
+        text
+        html
+      }
       keywords
       icon
+      featured
+      servicesOffered
+      commonProcedures {
+        text
+        html
+      }
     }
     contactInfos(first: 1) {
       id
@@ -25,7 +34,7 @@ export const GET_HOMEPAGE_DATA = gql`
       laboratory
     }
     newsArticles(
-      where: { publishedAt_lte: $now }
+      where: { publishedAt_not: null }
       orderBy: publishedAt_DESC
       first: 3
     ) {
@@ -33,10 +42,20 @@ export const GET_HOMEPAGE_DATA = gql`
       title
       excerpt
       featuredImage {
+        id
         url
+        width
+        height
       }
       author
       publishedAt
+      featured
+    }
+    doctors(where: { available: true }, first: 3) {
+      id
+      name
+      specialty
+      available
     }
   }
 `
@@ -44,13 +63,45 @@ export const GET_HOMEPAGE_DATA = gql`
 // Get all medical services
 export const GET_ALL_SERVICES = gql`
   query GetAllServices {
-    medicalServices(orderBy: name_ASC) {
+    medicalServices(orderBy: name_ASC, stage: PUBLISHED) {
       id
       name
-      description
+      description {
+        text
+        html
+      }
       keywords
       icon
       featured
+      servicesOffered
+      commonProcedures {
+        text
+        html
+      }
+    }
+  }
+`
+
+// Get single medical service
+export const GET_MEDICAL_SERVICE = gql`
+  query GetMedicalService($id: ID, $name: String) {
+    medicalService(where: { id: $id, name: $name }) {
+      id
+      name
+      description {
+        text
+        html
+      }
+      keywords
+      icon
+      featured
+      servicesOffered
+      commonProcedures {
+        text
+        html
+      }
+      createdAt
+      updatedAt
     }
   }
 `
@@ -87,7 +138,7 @@ export const GET_WORKING_HOURS = gql`
 export const GET_NEWS_ARTICLES = gql`
   query GetNewsArticles($limit: Int = 10, $skip: Int = 0) {
     newsArticles(
-      where: { publishedAt_lte: $now }
+      where: { publishedAt_not: null }
       orderBy: publishedAt_DESC
       first: $limit
       skip: $skip
@@ -96,7 +147,7 @@ export const GET_NEWS_ARTICLES = gql`
       title
       excerpt
       content {
-        html
+        text
       }
       featuredImage {
         url
@@ -135,13 +186,13 @@ export const GET_NEWS_ARTICLE = gql`
 // Get doctor profiles
 export const GET_DOCTORS = gql`
   query GetDoctors {
-    doctors(where: { available: true }) {
+    doctors(where: { available: true }, orderBy: name_ASC) {
       id
       name
       specialty
       qualifications
       bio {
-        html
+        text
       }
       photo {
         url
@@ -156,19 +207,19 @@ export const GET_DOCTORS = gql`
 
 // Get messages (for admin)
 export const GET_MESSAGES = gql`
-  query GetMessages($status: MessageStatus) {
+  query GetMessages($messageStatus: MessageStatus) {
     messages(
-      where: { status: $status }
+      where: { messageStatus: $messageStatus }
       orderBy: createdAt_DESC
     ) {
       id
       name
       email
       message {
-        html
+        text
       }
-      status
-      source
+      messageStatus
+      messageSource
       createdAt
       updatedAt
     }
@@ -183,12 +234,141 @@ export const GET_ALL_MESSAGES = gql`
       name
       email
       message {
-        html
+        text
       }
-      status
-      source
+      messageStatus
+      messageSource
       createdAt
       updatedAt
+    }
+  }
+`
+
+// Get appointments (for admin) - Updated to match your exact schema
+export const GET_APPOINTMENTS = gql`
+  query GetAppointments($appointmentStatus: AppointmentStatus) {
+    appointments(
+      where: { appointmentStatus: $appointmentStatus }
+      orderBy: createdAt_DESC
+    ) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      appointmentType
+      preferredDateTime
+      dateOfBirth
+      reason {
+        text
+      }
+      previousVisit
+      hasInsurance
+      appointmentStatus
+      doctor {
+        id
+      }
+      insuranceProvider
+      policyNumber
+      createdAt
+      updatedAt
+    }
+  }
+`
+
+// Get all appointments - Updated to match your exact Hygraph schema
+export const GET_ALL_APPOINTMENTS = gql`
+  query GetAllAppointments {
+    appointments(orderBy: createdAt_DESC) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      appointmentType
+      preferredDateTime
+      dateOfBirth
+      reason {
+        text
+      }
+      previousVisit
+      hasInsurance
+      appointmentStatus
+      doctor {
+        id
+      }
+      insuranceProvider
+      policyNumber
+      createdAt
+      updatedAt
+    }
+  }
+`
+
+// Create appointment mutation - Fixed to match your exact Hygraph schema
+export const CREATE_APPOINTMENT = gql`
+  mutation CreateAppointment(
+    $firstName: String!
+    $lastName: String!
+    $email: String!
+    $phone: String!
+    $appointmentType: AppointmentType!
+    $preferredDateTime: DateTime!
+    $dateOfBirth: DateTime!
+    $reason: RichTextAST
+    $previousVisit: Boolean
+    $hasInsurance: Boolean
+    $appointmentStatus: AppointmentStatus
+    $insuranceProvider: String
+    $policyNumber: String
+  ) {
+    createAppointment(
+      data: {
+        firstName: $firstName
+        lastName: $lastName
+        email: $email
+        phone: $phone
+        appointmentType: $appointmentType
+        preferredDateTime: $preferredDateTime
+        dateOfBirth: $dateOfBirth
+        reason: $reason
+        previousVisit: $previousVisit
+        hasInsurance: $hasInsurance
+        appointmentStatus: $appointmentStatus
+        insuranceProvider: $insuranceProvider
+        policyNumber: $policyNumber
+      }
+    ) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      appointmentType
+      preferredDateTime
+      dateOfBirth
+      reason {
+        text
+      }
+      previousVisit
+      hasInsurance
+      appointmentStatus
+      insuranceProvider
+      policyNumber
+      doctor {
+        id
+      }
+      createdAt
+    }
+  }
+`
+
+// Publish appointment mutation (if using Hygraph's draft system)
+export const PUBLISH_APPOINTMENT = gql`
+  mutation PublishAppointment($id: ID!) {
+    publishAppointment(where: { id: $id }) {
+      id
+      status
     }
   }
 `

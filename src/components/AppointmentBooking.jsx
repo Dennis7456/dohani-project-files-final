@@ -5,8 +5,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar, Clock, User, Phone, Mail, FileText, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { useContactInfo } from '@/hooks/useCMSData'
 
 const AppointmentBooking = ({ isOpen, onClose }) => {
+  // Get contact info from CMS
+  const { contactInfo } = useContactInfo()
+  
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     // Personal Information
@@ -15,25 +19,25 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
     email: '',
     phone: '',
     dateOfBirth: '',
-    
+
     // Appointment Details
     appointmentType: '',
     preferredDate: '',
     preferredTime: '',
     doctor: '',
-    
+
     // Additional Information
     reason: '',
     symptoms: '',
     previousVisit: false,
     emergencyContact: '',
-    
+
     // Insurance
     hasInsurance: false,
     insuranceProvider: '',
     policyNumber: ''
   })
-  
+
   const [availableSlots, setAvailableSlots] = useState([])
   const [doctors, setDoctors] = useState([])
   const [loading, setLoading] = useState(false)
@@ -81,27 +85,54 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
     setSubmitStatus({ success: false, error: null })
 
     try {
-      const response = await fetch('/api/book-appointment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
+      // Book appointment in Hygraph CMS and send confirmation email
+      const { bookAppointment } = await import('@/services/appointmentService.js')
 
-      const result = await response.json()
+      // console.log('📅 Booking appointment in CMS...', formData)
+      const bookingResult = await bookAppointment(formData)
 
-      if (response.ok) {
-        setSubmitStatus({ success: true, error: null })
+      if (bookingResult.success && bookingResult.savedToCMS) {
+        // Successfully saved to CMS
+        setSubmitStatus({
+          success: true,
+          error: null,
+          appointmentId: bookingResult.appointmentId,
+          message: bookingResult.message
+        })
         setStep(5) // Success step
+      } else if (bookingResult.usedFallback) {
+        // Saved locally but CMS failed - show error with retry option
+        setSubmitStatus({
+          success: false,
+          error: bookingResult.error,
+          retryable: true,
+          fallbackMessage: bookingResult.fallbackMessage,
+          appointmentId: bookingResult.appointmentId
+        })
       } else {
-        setSubmitStatus({ success: false, error: result.error || 'Failed to book appointment' })
+        // Complete failure
+        setSubmitStatus({
+          success: false,
+          error: bookingResult.error || 'Failed to book appointment',
+          retryable: bookingResult.retryable || false,
+          technicalError: bookingResult.technicalError
+        })
       }
     } catch (error) {
-      setSubmitStatus({ success: false, error: 'Network error. Please try again.' })
+      setSubmitStatus({
+        success: false,
+        error: 'Network error occurred while booking appointment.',
+        retryable: true,
+        technicalError: error.message
+      })
     } finally {
       setLoading(false)
     }
+  }
+
+  const retryBooking = async () => {
+    // console.log('🔄 Retrying appointment booking...')
+    await handleSubmit()
   }
 
   const resetForm = () => {
@@ -147,11 +178,10 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
                 {[1, 2, 3, 4].map((stepNum) => (
                   <div
                     key={stepNum}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      stepNum <= step
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${stepNum <= step
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                      }`}
                   >
                     {stepNum}
                   </div>
@@ -173,7 +203,7 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
                 <User className="mr-2 h-5 w-5" />
                 Personal Information
               </h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName">First Name *</Label>
@@ -258,11 +288,10 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
                   {appointmentTypes.map((type) => (
                     <div
                       key={type.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.appointmentType === type.id
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${formData.appointmentType === type.id
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                        }`}
                       onClick={() => handleInputChange('appointmentType', type.id)}
                     >
                       <div className="font-medium text-sm">{type.name}</div>
@@ -278,11 +307,10 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
                   {doctors.map((doctor) => (
                     <div
                       key={doctor.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.doctor === doctor.id.toString()
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${formData.doctor === doctor.id.toString()
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                        }`}
                       onClick={() => handleInputChange('doctor', doctor.id.toString())}
                     >
                       <div className="font-medium text-sm">{doctor.name}</div>
@@ -311,11 +339,10 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
                       <button
                         key={time}
                         type="button"
-                        className={`p-2 text-xs border rounded transition-colors ${
-                          formData.preferredTime === time
-                            ? 'border-blue-600 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:border-blue-300'
-                        }`}
+                        className={`p-2 text-xs border rounded transition-colors ${formData.preferredTime === time
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                          }`}
                         onClick={() => handleInputChange('preferredTime', time)}
                       >
                         {time}
@@ -416,17 +443,54 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium text-blue-900 mb-2">Payment Information</h4>
                 <p className="text-sm text-blue-700">
-                  We accept cash, mobile money (M-Pesa), and major credit cards. 
+                  We accept cash, mobile money (M-Pesa), and major credit cards.
                   If you have insurance, please bring your insurance card and ID to your appointment.
                 </p>
               </div>
 
               {submitStatus.error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center">
+                  <div className="flex items-center mb-3">
                     <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-                    <p className="text-red-600 text-sm">{submitStatus.error}</p>
+                    <p className="text-red-600 text-sm font-medium">Booking Error</p>
                   </div>
+                  <p className="text-red-600 text-sm mb-3">{submitStatus.error}</p>
+
+                  {submitStatus.fallbackMessage && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
+                      <p className="text-yellow-700 text-sm">
+                        <strong>📋 Your Information is Safe:</strong><br />
+                        {submitStatus.fallbackMessage}
+                      </p>
+                    </div>
+                  )}
+
+                  {submitStatus.retryable && (
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={retryBooking}
+                        disabled={loading}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {loading ? 'Retrying...' : 'Try Again'}
+                      </Button>
+                      <Button
+                        onClick={() => setSubmitStatus({ success: false, error: null })}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Continue Editing
+                      </Button>
+                    </div>
+                  )}
+
+                  {submitStatus.technicalError && (
+                    <details className="mt-3">
+                      <summary className="text-xs text-gray-500 cursor-pointer">Technical Details</summary>
+                      <p className="text-xs text-gray-400 mt-1">{submitStatus.technicalError}</p>
+                    </details>
+                  )}
                 </div>
               )}
             </div>
@@ -441,11 +505,25 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
               <h3 className="text-2xl font-bold text-green-800">Appointment Booked Successfully!</h3>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-green-700 mb-2">
-                  Your appointment has been scheduled for <strong>{formData.preferredDate}</strong> at <strong>{formData.preferredTime}</strong>.
+                  ✅ Your appointment for <strong>{formData.preferredDate}</strong> at <strong>{formData.preferredTime}</strong> has been saved to our system.
                 </p>
-                <p className="text-green-600 text-sm">
-                  You will receive a confirmation email shortly with all the details and instructions.
+                <p className="text-green-600 text-sm mb-2">
+                  📧 A confirmation email has been sent to <strong>{formData.email}</strong> with all the details.
                 </p>
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-3">
+                  <p className="text-blue-700 text-sm">
+                    <strong>📋 Your Appointment:</strong><br />
+                    � Date: 0{formData.preferredDate}<br />
+                    � Timie: {formData.preferredTime}<br />
+                    🏥 Type: {formData.appointmentType}
+                  </p>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+                  <p className="text-yellow-700 text-sm">
+                    <strong>📞 Need to make changes?</strong><br />
+                    Call: {contactInfo?.phone || '0798057622'} | Email: {contactInfo?.email || 'dohanimedicare@gmail.com'}
+                  </p>
+                </div>
               </div>
               <div className="space-y-2">
                 <Button onClick={resetForm} className="w-full">
@@ -468,7 +546,7 @@ const AppointmentBooking = ({ isOpen, onClose }) => {
               >
                 Previous
               </Button>
-              
+
               {step < 4 ? (
                 <Button
                   onClick={handleNext}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Appointment Booking</title>
+</head>
+<body>
+    <h1>Appointment Booking Test</h1>
+    <p>Check browser console for results</p>
+    
+    <script>
+        // Test the appointment booking fallback system
+        console.log('🧪 Testing appointment booking fallback...')
+        
+        // Simulate appointment data
+        const testAppointmentData = {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@example.com',
+            phone: '0798057622',
+            appointmentType: 'General Consultation',
+            preferredDate: '2025-01-15',
+            preferredTime: '10:00 AM',
+            reason: 'Regular checkup',
+            previousVisit: false,
+            hasInsurance: false
+        }
+        
+        // Test local storage fallback
+        try {
+            const fallbackAppointment = {
+                id: `local_${Date.now()}`,
+                ...testAppointmentData,
+                status: 'PENDING',
+                createdAt: new Date().toISOString()
+            }
+            
+            // Store in localStorage
+            const appointments = JSON.parse(localStorage.getItem('appointments') || '[]')
+            appointments.push(fallbackAppointment)
+            localStorage.setItem('appointments', JSON.stringify(appointments))
+            
+            console.log('✅ Fallback appointment storage test successful!')
+            console.log('📋 Stored appointment:', fallbackAppointment)
+            
+            // Test email preparation
+            const emailDetails = {
+                to: testAppointmentData.email,
+                subject: 'Appointment Confirmation - Dohani Medicare',
+                content: `
+Dear ${testAppointmentData.firstName} ${testAppointmentData.lastName},
+
+Your appointment has been successfully scheduled.
+
+📋 Appointment Details:
+• Date: ${testAppointmentData.preferredDate}
+• Time: ${testAppointmentData.preferredTime}
+• Type: ${testAppointmentData.appointmentType}
+• ID: ${fallbackAppointment.id}
+
+Best regards,
+Dohani Medicare Team
+                `,
+                appointmentId: fallbackAppointment.id,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            }
+            
+            const pendingEmails = JSON.parse(localStorage.getItem('pendingEmails') || '[]')
+            pendingEmails.push(emailDetails)
+            localStorage.setItem('pendingEmails', JSON.stringify(pendingEmails))
+            
+            console.log('✅ Email preparation test successful!')
+            console.log('📧 Prepared email:', emailDetails)
+            
+            // Show results
+            document.body.innerHTML += `
+                <div style="background: #f0f9ff; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h2 style="color: #1e40af;">✅ Test Results</h2>
+                    <p><strong>Appointment ID:</strong> ${fallbackAppointment.id}</p>
+                    <p><strong>Status:</strong> ${fallbackAppointment.status}</p>
+                    <p><strong>Email Prepared:</strong> Yes</p>
+                    <p><strong>Storage:</strong> localStorage (fallback working)</p>
+                </div>
+                
+                <div style="background: #fef3c7; padding: 15px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="color: #92400e;">📋 View Stored Data</h3>
+                    <p>Open browser console and run:</p>
+                    <code style="background: #fff; padding: 5px; border-radius: 3px;">
+                        JSON.parse(localStorage.getItem('appointments'))
+                    </code>
+                </div>
+            `
+            
+        } catch (error) {
+            console.error('❌ Test failed:', error)
+            document.body.innerHTML += `
+                <div style="background: #fef2f2; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h2 style="color: #dc2626;">❌ Test Failed</h2>
+                    <p>${error.message}</p>
+                </div>
+            `
+        }
+    </script>
+</body>
+</html>

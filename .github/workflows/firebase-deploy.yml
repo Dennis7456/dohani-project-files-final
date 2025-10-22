@@ -1,0 +1,42 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_HYGRAPH_ENDPOINT: ${{ secrets.VITE_HYGRAPH_ENDPOINT }}
+          VITE_HYGRAPH_TOKEN: ${{ secrets.VITE_HYGRAPH_TOKEN }}
+          VITE_MAILJET_API_KEY: ${{ secrets.VITE_MAILJET_API_KEY }}
+          VITE_MAILJET_SECRET_KEY: ${{ secrets.VITE_MAILJET_SECRET_KEY }}
+          VITE_SENDER_EMAIL: ${{ secrets.VITE_SENDER_EMAIL }}
+          VITE_ADMIN_EMAIL: ${{ secrets.VITE_ADMIN_EMAIL }}
+          VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+      
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DOHANI_MEDICARE }}
+          channelId: live
+          projectId: dohani-medicare-560e6

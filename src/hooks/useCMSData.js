@@ -1,113 +1,333 @@
+// Full CMS integration with your implemented Hygraph schema
 import { useQuery } from '@apollo/client'
-import { GET_HOMEPAGE_DATA, GET_ALL_SERVICES, GET_CONTACT_INFO, GET_WORKING_HOURS } from '@/graphql/queries.js'
+import {
+  Stethoscope,
+  Heart,
+  Baby,
+  Activity,
+  Pill,
+  Users,
+  Microscope,
+  Truck,
+  Shield,
+  Clock
+} from 'lucide-react'
+import {
+  GET_HOMEPAGE_DATA,
+  GET_ALL_SERVICES,
+  GET_MEDICAL_SERVICE,
+  GET_CONTACT_INFO,
+  GET_WORKING_HOURS,
+  GET_DOCTORS,
+  GET_NEWS_ARTICLES,
+  GET_ALL_MESSAGES,
+  GET_ALL_APPOINTMENTS
+} from '@/graphql/queries.js'
 
-// Hook for homepage data
+// Helper function to format service names to display titles
+function formatServiceTitle(serviceName) {
+  const titleMap = {
+    'cardiology': 'Cardiology',
+    'pharmacy': 'Pharmacy Services',
+    'pediatrics': 'Pediatrics',
+    'laboratory-services': 'Laboratory Services',
+    'general-medicine': 'General Medicine'
+  }
+  return titleMap[serviceName] || serviceName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+// Helper function to get service icons
+function getServiceIcon(serviceName) {
+  const iconMap = {
+    'cardiology': Heart,
+    'pharmacy': Pill,
+    'pediatrics': Baby,
+    'laboratory-services': Microscope,
+    'general-medicine': Stethoscope,
+    // Legacy mappings for backward compatibility
+    'General Medicine': Stethoscope,
+    'Cardiology': Heart,
+    'Pediatrics': Baby,
+    'Laboratory Services': Activity,
+    'Pharmacy': Pill,
+    'Consultation Clinics': Users,
+    'Emergency Services': Truck,
+    'Radiology': Microscope,
+    'Surgery': Shield,
+    'Outpatient Services': Clock,
+  }
+  
+  return iconMap[serviceName] || Stethoscope
+}
+
+// Homepage data from your implemented schema
 export const useHomepageData = () => {
-  const { loading, error, data } = useQuery(GET_HOMEPAGE_DATA, {
-    variables: {
-      now: new Date().toISOString()
-    },
-    errorPolicy: 'all'
+  const { loading, error, data, refetch } = useQuery(GET_HOMEPAGE_DATA, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true
   })
+
+  // Debug logging
+  // console.log('Homepage Data Debug:', {
+  //   loading,
+  //   error,
+  //   data,
+  //   medicalServices: data?.medicalServices,
+  //   medicalServicesCount: data?.medicalServices?.length
+  // })
+
+  // Temporary fallback services for debugging
+  const fallbackServices = !loading && (!data?.medicalServices || data.medicalServices.length === 0) ? [
+    {
+      id: 'temp-1',
+      name: 'cardiology',
+      title: 'Cardiology',
+      description: 'Heart and cardiovascular care services',
+      keywords: ['heart', 'cardiology'],
+      icon: getServiceIcon('cardiology'),
+      featured: true,
+      servicesOffered: ['ECG Testing', 'Heart Monitoring'],
+      commonProcedures: null
+    },
+    {
+      id: 'temp-2', 
+      name: 'general-medicine',
+      title: 'General Medicine',
+      description: 'Primary healthcare and family medicine',
+      keywords: ['general', 'medicine'],
+      icon: getServiceIcon('general-medicine'),
+      featured: true,
+      servicesOffered: ['Health Check-ups', 'Medical Consultations'],
+      commonProcedures: null
+    }
+  ] : []
+
+  const cmsServices = data?.medicalServices?.map(service => ({
+    id: service.id,
+    name: service.name,
+    title: formatServiceTitle(service.name),
+    description: service.description?.text || service.description || '',
+    keywords: service.keywords || [],
+    icon: getServiceIcon(service.name),
+    featured: service.featured || false,
+    servicesOffered: service.servicesOffered || [],
+    commonProcedures: service.commonProcedures
+  })) || []
 
   return {
     loading,
     error,
-    services: data?.medicalServices || [],
+    services: cmsServices.length > 0 ? cmsServices : fallbackServices,
     contactInfo: data?.contactInfos?.[0] || null,
     workingHours: data?.workingHours?.[0] || null,
-    newsArticles: data?.newsArticles || []
+    newsArticles: data?.newsArticles?.map(article => ({
+      id: article.id,
+      title: article.title,
+      excerpt: article.excerpt,
+      featuredImage: article.featuredImage,
+      author: article.author,
+      publishedAt: article.publishedAt,
+      featured: article.featured
+    })) || [],
+    doctors: data?.doctors?.map(doctor => ({
+      id: doctor.id,
+      name: doctor.name,
+      specialty: doctor.specialty,
+      available: doctor.available
+    })) || [],
+    refetch
   }
 }
 
-// Hook for all services
+// All services from your MedicalService schema
 export const useServices = () => {
-  const { loading, error, data } = useQuery(GET_ALL_SERVICES, {
-    errorPolicy: 'all'
+  const { loading, error, data, refetch } = useQuery(GET_ALL_SERVICES, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
   })
+
+  // Debug logging
+  // console.log('All Services Debug:', {
+  //   loading,
+  //   error,
+  //   data,
+  //   medicalServices: data?.medicalServices,
+  //   medicalServicesCount: data?.medicalServices?.length
+  // })
 
   return {
     loading,
     error,
-    services: data?.medicalServices || []
+    services: data?.medicalServices?.map(service => ({
+      id: service.id,
+      name: service.name,
+      title: formatServiceTitle(service.name),
+      description: service.description?.text || service.description || '',
+      keywords: service.keywords || [],
+      icon: getServiceIcon(service.name),
+      featured: service.featured || false,
+      servicesOffered: service.servicesOffered || [],
+      commonProcedures: service.commonProcedures
+    })) || [],
+    refetch
   }
 }
 
-// Hook for contact information
+// Single medical service
+export const useMedicalService = (id, name) => {
+  const { loading, error, data, refetch } = useQuery(GET_MEDICAL_SERVICE, {
+    variables: { id, name },
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network',
+    skip: !id && !name
+  })
+
+  const service = data?.medicalService
+
+  return {
+    loading,
+    error,
+    service: service ? {
+      id: service.id,
+      name: service.name,
+      title: formatServiceTitle(service.name),
+      description: service.description?.text || service.description || '',
+      keywords: service.keywords || [],
+      icon: getServiceIcon(service.name),
+      featured: service.featured || false,
+      servicesOffered: service.servicesOffered || [],
+      commonProcedures: service.commonProcedures,
+      createdAt: service.createdAt,
+      updatedAt: service.updatedAt
+    } : null,
+    refetch
+  }
+}
+
+// Contact info from your ContactInfo schema
 export const useContactInfo = () => {
-  const { loading, error, data } = useQuery(GET_CONTACT_INFO, {
-    errorPolicy: 'all'
+  const { loading, error, data, refetch } = useQuery(GET_CONTACT_INFO, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
   })
 
   return {
     loading,
     error,
-    contactInfo: data?.contactInfos?.[0] || null
+    contactInfo: data?.contactInfos?.[0] || null,
+    refetch
   }
 }
 
-// Hook for working hours
+// Working hours from your WorkingHours schema
 export const useWorkingHours = () => {
-  const { loading, error, data } = useQuery(GET_WORKING_HOURS, {
-    errorPolicy: 'all'
+  const { loading, error, data, refetch } = useQuery(GET_WORKING_HOURS, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
   })
 
   return {
     loading,
     error,
-    workingHours: data?.workingHours?.[0] || null
+    workingHours: data?.workingHours?.[0] || null,
+    refetch
   }
 }
 
-// Fallback data for when Hygraph is not available
-export const fallbackData = {
-  services: [
-    {
-      id: '1',
-      name: 'General Medicine',
-      description: 'Comprehensive primary care services for all ages, including diagnosis, treatment, and preventive care.',
-      keywords: ['general', 'medicine', 'primary care', 'gp', 'doctor', 'consultation'],
-      featured: true
-    },
-    {
-      id: '2',
-      name: 'Cardiology',
-      description: 'Expert cardiac care including ECG, stress tests, and heart disease management.',
-      keywords: ['heart', 'cardiology', 'cardiac', 'ecg', 'blood pressure'],
-      featured: true
-    },
-    {
-      id: '3',
-      name: 'Pediatrics',
-      description: 'Specialized healthcare for infants, children, and adolescents with compassionate care.',
-      keywords: ['children', 'pediatrics', 'kids', 'baby', 'vaccination'],
-      featured: true
-    },
-    {
-      id: '4',
-      name: 'Laboratory Services',
-      description: 'State-of-the-art diagnostic testing with accurate and timely results.',
-      keywords: ['lab', 'laboratory', 'test', 'blood test', 'diagnosis'],
-      featured: false
-    },
-    {
-      id: '5',
-      name: 'Pharmacy',
-      description: '24/7 pharmacy services with a wide range of medications and professional consultation.',
-      keywords: ['pharmacy', 'medicine', 'medication', 'drugs', 'prescription'],
-      featured: false
-    }
-  ],
-  contactInfo: {
-    phone: '0798057622',
-    emergencyPhone: '0798057622',
-    email: 'dohanimedicare@gmail.com',
-    location: 'Dohani Medicare Hospital'
-  },
-  workingHours: {
-    emergency: '24/7 - Open all day, every day',
-    consultation: 'Monday to Saturday: 8:00 AM - 6:00 PM',
-    pharmacy: '24/7 - Open all day, every day',
-    laboratory: 'Monday to Saturday: 7:00 AM - 7:00 PM'
+// Doctors from your Doctor schema
+export const useDoctors = () => {
+  const { loading, error, data, refetch } = useQuery(GET_DOCTORS, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
+  })
+
+  return {
+    loading,
+    error,
+    doctors: data?.doctors?.map(doctor => ({
+      id: doctor.id,
+      name: doctor.name,
+      specialty: doctor.specialty,
+      qualifications: doctor.qualifications || [],
+      bio: doctor.bio?.text || doctor.bio || '',
+      photo: doctor.photo,
+      consultationHours: doctor.consultationHours,
+      available: doctor.available
+    })) || [],
+    refetch
+  }
+}
+
+// News articles from your NewsArticle schema
+export const useNewsArticles = (limit = 10) => {
+  const { loading, error, data, refetch } = useQuery(GET_NEWS_ARTICLES, {
+    variables: { limit },
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
+  })
+
+  return {
+    loading,
+    error,
+    articles: data?.newsArticles?.map(article => ({
+      id: article.id,
+      title: article.title,
+      excerpt: article.excerpt,
+      content: article.content?.text || article.content || '',
+      featuredImage: article.featuredImage,
+      author: article.author,
+      featured: article.featured,
+      publishedAt: article.publishedAt,
+      createdAt: article.createdAt
+    })) || [],
+    refetch
+  }
+}
+
+// Messages from your Message schema
+export const useMessages = (messageStatus = null) => {
+  const { loading, error, data, refetch } = useQuery(GET_ALL_MESSAGES, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
+  })
+
+  const filteredMessages = messageStatus 
+    ? data?.messages?.filter(msg => msg.messageStatus === messageStatus) || []
+    : data?.messages || []
+
+  return {
+    loading,
+    error,
+    messages: filteredMessages.map(message => ({
+      id: message.id,
+      name: message.name,
+      email: message.email,
+      message: message.message?.text || message.message || '',
+      status: message.messageStatus,
+      source: message.messageSource,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt
+    })),
+    refetch
+  }
+}
+
+// Appointments from your Appointment schema
+export const useAppointments = (status = null) => {
+  const { loading, error, data, refetch } = useQuery(GET_ALL_APPOINTMENTS, {
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network'
+  })
+
+  const filteredAppointments = status 
+    ? data?.appointments?.filter(apt => apt.status === status) || []
+    : data?.appointments || []
+
+  return {
+    loading,
+    error,
+    appointments: filteredAppointments,
+    refetch
   }
 }

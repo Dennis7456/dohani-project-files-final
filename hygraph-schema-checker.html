@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hygraph Appointment Schema Checker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .warning {
+            background: #fefce8;
+            color: #ca8a04;
+            border: 1px solid #fde68a;
+        }
+        .info {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .field-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .field-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .field-required {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .field-optional {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .field-missing {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Hygraph Appointment Schema Checker</h1>
+        
+        <div class="test-section">
+            <h3>🔍 Schema Validation</h3>
+            <p>This tool checks if your Hygraph Appointment schema is properly configured for the Dohani Medicare booking system.</p>
+            
+            <button onclick="runFullCheck()" id="checkBtn">Run Schema Check</button>
+            <button onclick="testAppointmentCreation()" id="testBtn">Test Appointment Creation</button>
+            <button onclick="clearLog()" id="clearBtn">Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Required Fields</h3>
+            <div class="field-list" id="requiredFields">
+                <div class="field-item field-required">firstName (String)</div>
+                <div class="field-item field-required">lastName (String)</div>
+                <div class="field-item field-required">email (String)</div>
+                <div class="field-item field-required">phone (String)</div>
+                <div class="field-item field-required">appointmentType (String)</div>
+                <div class="field-item field-required">preferredDate (String)</div>
+                <div class="field-item field-required">preferredTime (String)</div>
+                <div class="field-item field-required">reason (String)</div>
+                <div class="field-item field-required">previousVisit (Boolean)</div>
+                <div class="field-item field-required">hasInsurance (Boolean)</div>
+                <div class="field-item field-required">status (String)</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Optional Fields</h3>
+            <div class="field-list" id="optionalFields">
+                <div class="field-item field-optional">dateOfBirth (String)</div>
+                <div class="field-item field-optional">doctor (String)</div>
+                <div class="field-item field-optional">symptoms (String)</div>
+                <div class="field-item field-optional">emergencyContact (String)</div>
+                <div class="field-item field-optional">insuranceProvider (String)</div>
+                <div class="field-item field-optional">policyNumber (String)</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results</h3>
+            <div id="results"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Debug Log</h3>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Apollo Client (you'll need to adjust the path)
+        let client;
+        
+        // Try to import the GraphQL client
+        try {
+            const { client: apolloClient } = await import('./src/lib/graphql.js');
+            client = apolloClient;
+            log('✅ GraphQL client loaded successfully');
+        } catch (error) {
+            log('❌ Failed to load GraphQL client: ' + error.message);
+            log('⚠️ Make sure you\'re running this from your project root');
+        }
+
+        // Logging function
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        function showResult(type, message) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Test queries
+        const TEST_APPOINTMENT_QUERY = `
+            query TestAppointmentQuery {
+                appointments(first: 1) {
+                    id
+                    firstName
+                    lastName
+                    email
+                    phone
+                    appointmentType
+                    preferredDate
+                    preferredTime
+                    status
+                    createdAt
+                }
+            }
+        `;
+
+        const TEST_CREATE_APPOINTMENT = `
+            mutation TestCreateAppointment(
+                $firstName: String!
+                $lastName: String!
+                $email: String!
+                $phone: String!
+                $appointmentType: String!
+                $preferredDate: String!
+                $preferredTime: String!
+                $reason: String!
+                $previousVisit: Boolean!
+                $hasInsurance: Boolean!
+                $status: String!
+            ) {
+                createAppointment(
+                    data: {
+                        firstName: $firstName
+                        lastName: $lastName
+                        email: $email
+                        phone: $phone
+                        appointmentType: $appointmentType
+                        preferredDate: $preferredDate
+                        preferredTime: $preferredTime
+                        reason: $reason
+                        previousVisit: $previousVisit
+                        hasInsurance: $hasInsurance
+                        status: $status
+                    }
+                ) {
+                    id
+                    firstName
+                    lastName
+                    email
+                    status
+                    createdAt
+                }
+            }
+        `;
+
+        async function checkHygraphConnection() {
+            if (!client) {
+                throw new Error('GraphQL client not available');
+            }
+
+            log('🔍 Testing Hygraph connection...');
+            
+            try {
+                const result = await client.query({
+                    query: `query TestConnection { __typename }`,
+                    fetchPolicy: 'network-only'
+                });
+                
+                if (result.data.__typename) {
+                    log('✅ Hygraph connection successful');
+                    showResult('success', '✅ Hygraph connection successful');
+                    return true;
+                }
+            } catch (error) {
+                log('❌ Hygraph connection failed: ' + error.message);
+                showResult('error', '❌ Hygraph connection failed: ' + error.message);
+                return false;
+            }
+        }
+
+        async function checkAppointmentSchema() {
+            log('🔍 Checking if Appointment schema exists...');
+            
+            try {
+                const result = await client.query({
+                    query: TEST_APPOINTMENT_QUERY,
+                    fetchPolicy: 'network-only',
+                    errorPolicy: 'all'
+                });
+                
+                if (result.data && result.data.appointments !== undefined) {
+                    log('✅ Appointment schema exists in Hygraph');
+                    log(`📊 Found ${result.data.appointments.length} existing appointments`);
+                    showResult('success', `✅ Appointment schema exists (${result.data.appointments.length} appointments found)`);
+                    return true;
+                }
+            } catch (error) {
+                if (error.message.includes('Cannot query field "appointments"')) {
+                    log('❌ Appointment schema does NOT exist in Hygraph');
+                    showResult('error', '❌ Appointment schema does NOT exist in Hygraph');
+                    return false;
+                } else {
+                    log('⚠️ Schema check inconclusive: ' + error.message);
+                    showResult('warning', '⚠️ Schema check inconclusive: ' + error.message);
+                    return false;
+                }
+            }
+        }
+
+        async function testAppointmentCreation() {
+            if (!client) {
+                showResult('error', '❌ GraphQL client not available');
+                return;
+            }
+
+            clearResults();
+            log('🧪 Testing appointment creation mutation...');
+            
+            const testData = {
+                firstName: 'Schema',
+                lastName: 'Test',
+                email: 'schema.test@example.com',
+                phone: '0700000000',
+                appointmentType: 'general',
+                preferredDate: '2025-01-20',
+                preferredTime: '10:00',
+                reason: 'Schema validation test',
+                previousVisit: false,
+                hasInsurance: false,
+                status: 'PENDING'
+            };
+            
+            try {
+                const result = await client.mutate({
+                    mutation: TEST_CREATE_APPOINTMENT,
+                    variables: testData
+                });
+                
+                if (result.data && result.data.createAppointment) {
+                    log('✅ Appointment creation mutation works!');
+                    log(`📋 Test appointment created with ID: ${result.data.createAppointment.id}`);
+                    showResult('success', '✅ Appointment creation mutation works perfectly!');
+                    
+                    // Try to clean up test appointment
+                    try {
+                        await client.mutate({
+                            mutation: `
+                                mutation DeleteTestAppointment($id: ID!) {
+                                    deleteAppointment(where: { id: $id }) {
+                                        id
+                                    }
+                                }
+                            `,
+                            variables: { id: result.data.createAppointment.id }
+                        });
+                        log('🧹 Test appointment cleaned up');
+                    } catch (cleanupError) {
+                        log('⚠️ Could not clean up test appointment (this is okay)');
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                log('❌ Appointment creation failed: ' + error.message);
+                showResult('error', '❌ Appointment creation failed: ' + error.message);
+                
+                if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+                    log('📋 GraphQL Errors:');
+                    error.graphQLErrors.forEach((gqlError, index) => {
+                        log(`   ${index + 1}. ${gqlError.message}`);
+                    });
+                }
+                
+                return false;
+            }
+        }
+
+        async function runFullCheck() {
+            if (!client) {
+                showResult('error', '❌ GraphQL client not available. Make sure you\'re running this from your project root.');
+                return;
+            }
+
+            clearResults();
+            log('🏥 Starting full Hygraph schema check...');
+            
+            try {
+                // Disable buttons during check
+                document.getElementById('checkBtn').disabled = true;
+                document.getElementById('testBtn').disabled = true;
+                
+                const connectionOk = await checkHygraphConnection();
+                if (!connectionOk) {
+                    showResult('error', '❌ Cannot proceed without Hygraph connection');
+                    return;
+                }
+                
+                const schemaExists = await checkAppointmentSchema();
+                
+                if (schemaExists) {
+                    showResult('info', '🔍 Schema exists, testing appointment creation...');
+                    const mutationOk = await testAppointmentCreation();
+                    
+                    if (mutationOk) {
+                        showResult('success', '🎉 Your Appointment schema is fully configured and working!');
+                        showResult('info', '🎯 Your appointment booking system should work perfectly');
+                    } else {
+                        showResult('warning', '⚠️ Schema exists but appointment creation has issues');
+                    }
+                } else {
+                    showResult('error', '❌ You need to create the Appointment schema in Hygraph');
+                    showResult('info', '📖 Follow the guide in HYGRAPH_APPOINTMENT_SCHEMA_SETUP.md');
+                }
+                
+            } catch (error) {
+                log('❌ Schema check failed: ' + error.message);
+                showResult('error', '❌ Schema check failed: ' + error.message);
+            } finally {
+                // Re-enable buttons
+                document.getElementById('checkBtn').disabled = false;
+                document.getElementById('testBtn').disabled = false;
+            }
+        }
+
+        // Make functions available globally
+        window.runFullCheck = runFullCheck;
+        window.testAppointmentCreation = testAppointmentCreation;
+        window.clearLog = clearLog;
+
+        // Auto-run connection check on load
+        if (client) {
+            log('🚀 Schema checker loaded and ready');
+            showResult('info', '🚀 Schema checker loaded. Click "Run Schema Check" to begin.');
+        } else {
+            showResult('warning', '⚠️ GraphQL client not loaded. Make sure you\'re running this from your project root.');
+        }
+    </script>
+</body>
+</html>

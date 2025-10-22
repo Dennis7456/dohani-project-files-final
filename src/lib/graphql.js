@@ -46,10 +46,17 @@ export const client = new ApolloClient({
   }),
   defaultOptions: {
     watchQuery: {
-      errorPolicy: 'all'
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-first',
+      notifyOnNetworkStatusChange: true
     },
     query: {
-      errorPolicy: 'all'
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-first'
     }
+  },
+  // Disable dev tools to prevent console warnings
+  devtools: {
+    enabled: false
   }
 })

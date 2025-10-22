@@ -1,0 +1,870 @@
+# GraphQL Mutations to Create Services in Hygraph CMS
+# Copy and paste each mutation individually into the API Playground
+
+# ========================================
+# 1. CREATE CARDIOLOGY SERVICE
+# ========================================
+
+mutation CreateCardiologyService {
+  createMedicalService(data: {
+    name: "cardiology"
+    description: {
+      children: [
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our Cardiology department provides comprehensive cardiac care using state-of-the-art diagnostic and treatment technologies. Our experienced cardiologists specialize in preventing, diagnosing, and treating diseases of the heart and blood vessels."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "We offer a full range of cardiac services, from routine screenings to complex interventions. Our approach combines cutting-edge medical technology with compassionate care to ensure the best possible outcomes for our patients."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Whether you're dealing with a chronic heart condition, recovering from a cardiac event, or seeking preventive care, our cardiology team is dedicated to helping you maintain optimal heart health throughout your life."
+            }
+          ]
+        }
+      ]
+    }
+    keywords: [
+      "heart", "cardiology", "cardiac", "ecg", "blood pressure", 
+      "chest pain", "hypertension", "heart disease", "cardiovascular", "arrhythmia"
+    ]
+    icon: "Heart"
+    featured: true
+    servicesOffered: [
+      "Comprehensive cardiac evaluations and risk assessments",
+      "ECG (Electrocardiogram) and stress testing",
+      "Echocardiography and cardiac imaging",
+      "Hypertension management and monitoring",
+      "Cholesterol management and lipid disorders",
+      "Heart failure diagnosis and treatment",
+      "Arrhythmia evaluation and management",
+      "Cardiac rehabilitation programs",
+      "Preventive cardiology consultations",
+      "Emergency cardiac care"
+    ]
+    commonProcedures: {
+      children: [
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Diagnostic Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Electrocardiogram (ECG/EKG) - Records electrical activity of the heart"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Echocardiography - Ultrasound imaging of heart structure and function"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Stress Testing - Evaluates heart function during physical activity"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Holter Monitoring - 24-hour continuous heart rhythm monitoring"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Treatment Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Blood Pressure Management - Comprehensive hypertension treatment"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Cardiac Risk Assessment - Evaluation of cardiovascular disease risk factors"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Medication Management - Optimization of cardiac medications"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    featured
+    createdAt
+  }
+}
+
+# ========================================
+# 2. CREATE PHARMACY SERVICE
+# ========================================
+
+mutation CreatePharmacyService {
+  createMedicalService(data: {
+    name: "pharmacy"
+    description: {
+      children: [
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our Pharmacy Services operate 24/7 to ensure that patients have access to essential medications and pharmaceutical care whenever needed. Our licensed pharmacists are available to provide medication counseling, drug interaction checks, and answer questions about your prescriptions."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "We maintain a comprehensive inventory of medications, including both brand-name and generic options, to meet diverse patient needs and budgets. Our pharmacy also stocks medical supplies, health and wellness products, and over-the-counter medications."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our pharmacists work closely with healthcare providers to ensure optimal medication therapy outcomes. We provide medication management services, including dosage optimization, side effect monitoring, and patient education to promote safe and effective medication use."
+            }
+          ]
+        }
+      ]
+    }
+    keywords: [
+      "pharmacy", "medicine", "medication", "drugs", "prescription", 
+      "pharmacist", "counseling", "24/7", "generic", "brand-name"
+    ]
+    icon: "Pill"
+    featured: true
+    servicesOffered: [
+      "24/7 prescription dispensing services",
+      "Medication counseling and education",
+      "Drug interaction and allergy screening",
+      "Generic medication alternatives",
+      "Medication therapy management",
+      "Over-the-counter health products",
+      "Medical supplies and equipment",
+      "Insurance and payment assistance",
+      "Prescription refill services",
+      "Emergency medication access"
+    ]
+    commonProcedures: {
+      children: [
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Prescription Services"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Prescription Verification and Dispensing - Accurate medication preparation and labeling"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Medication Counseling - Patient education on proper medication use"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Drug Interaction Screening - Safety checks for medication combinations"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Clinical Services"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Medication Therapy Management - Comprehensive medication review and optimization"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Dosage Calculation and Optimization - Personalized dosing recommendations"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Medication Reconciliation - Ensuring accurate medication lists across care transitions"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    featured
+    createdAt
+  }
+}
+
+# ========================================
+# 3. CREATE PEDIATRICS SERVICE
+# ========================================
+
+mutation CreatePediatricsService {
+  createMedicalService(data: {
+    name: "pediatrics"
+    description: {
+      children: [
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our Pediatrics department is dedicated to providing comprehensive healthcare for children from birth through adolescence. We understand that children have unique medical needs and require specialized care that differs from adult medicine."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our pediatric team creates a child-friendly environment where young patients feel comfortable and safe. We work closely with parents and caregivers to ensure that children receive the best possible care while maintaining their emotional well-being."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "From routine check-ups and vaccinations to managing childhood illnesses and developmental concerns, our pediatricians are committed to supporting your child's healthy growth and development at every stage."
+            }
+          ]
+        }
+      ]
+    }
+    keywords: [
+      "children", "pediatrics", "kids", "baby", "vaccination", 
+      "child", "adolescent", "growth", "development", "immunization"
+    ]
+    icon: "Baby"
+    featured: true
+    servicesOffered: [
+      "Well-child visits and developmental screenings",
+      "Complete vaccination and immunization programs",
+      "Growth and development monitoring",
+      "Acute illness diagnosis and treatment",
+      "Chronic condition management",
+      "Nutritional counseling and guidance",
+      "Behavioral and developmental assessments",
+      "Adolescent health and counseling services",
+      "Newborn care and check-ups",
+      "School health evaluations"
+    ]
+    commonProcedures: {
+      children: [
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Routine Care Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Routine Physical Examinations - Comprehensive health assessments for all ages"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Growth and Development Assessment - Monitoring physical and cognitive milestones"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Vaccination Administration - Complete immunization schedule management"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Diagnostic Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Vision and Hearing Screenings - Early detection of sensory impairments"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Developmental Milestone Evaluation - Assessment of age-appropriate skills"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Nutritional Assessment - Evaluation of dietary needs and growth patterns"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    featured
+    createdAt
+  }
+}
+
+# ========================================
+# 4. CREATE LABORATORY SERVICES
+# ========================================
+
+mutation CreateLaboratoryService {
+  createMedicalService(data: {
+    name: "laboratory-services"
+    description: {
+      children: [
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our Laboratory Services department is equipped with state-of-the-art diagnostic equipment and staffed by experienced laboratory technicians and pathologists. We provide a comprehensive range of laboratory tests to support accurate diagnosis and effective treatment planning."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "We understand the importance of accurate and timely test results in healthcare decision-making. Our laboratory maintains the highest standards of quality control and follows strict protocols to ensure reliable results that healthcare providers can trust."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "From routine blood work to specialized diagnostic tests, our laboratory services support all departments within the hospital and serve as a crucial component in patient care and treatment monitoring."
+            }
+          ]
+        }
+      ]
+    }
+    keywords: [
+      "lab", "laboratory", "test", "blood test", "diagnosis", 
+      "screening", "pathology", "microbiology", "chemistry", "hematology"
+    ]
+    icon: "Microscope"
+    featured: false
+    servicesOffered: [
+      "Complete blood count (CBC) and blood chemistry panels",
+      "Microbiology and infectious disease testing",
+      "Hormone and endocrine function tests",
+      "Cardiac markers and lipid profiles",
+      "Liver and kidney function tests",
+      "Diabetes monitoring and glucose testing",
+      "Pregnancy and fertility testing",
+      "Cancer markers and tumor screening",
+      "Allergy and immunology testing",
+      "Emergency and stat laboratory services"
+    ]
+    commonProcedures: {
+      children: [
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Sample Collection Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Blood Sample Collection - Venipuncture and capillary blood sampling"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Urine Analysis - Complete urinalysis and microscopic examination"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Stool Examination - Parasitology and bacterial culture testing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Analytical Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Biochemical Analysis - Comprehensive metabolic panels and organ function tests"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Hematological Testing - Blood cell counts and coagulation studies"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Microbiological Cultures - Bacterial identification and antibiotic sensitivity testing"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    featured
+    createdAt
+  }
+}
+
+# ========================================
+# 5. CREATE GENERAL MEDICINE SERVICE
+# ========================================
+
+mutation CreateGeneralMedicineService {
+  createMedicalService(data: {
+    name: "general-medicine"
+    description: {
+      children: [
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our General Medicine department serves as the foundation of healthcare at Dohani Medicare Hospital. Our experienced general practitioners provide comprehensive primary care services, serving as your first point of contact for all health concerns."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "We believe in building long-term relationships with our patients, understanding their medical history, lifestyle, and health goals to provide personalized care. Our approach focuses on not just treating illness, but promoting overall wellness and preventing disease."
+            }
+          ]
+        }
+        {
+          type: "paragraph"
+          children: [
+            {
+              text: "Our general medicine services include routine health screenings, management of chronic conditions like diabetes and hypertension, acute illness treatment, and coordination of care with specialists when needed. We also provide health education and lifestyle counseling to help you maintain optimal health."
+            }
+          ]
+        }
+      ]
+    }
+    keywords: [
+      "general", "medicine", "primary care", "gp", "doctor", 
+      "consultation", "family medicine", "preventive care", "wellness", "health screening"
+    ]
+    icon: "Stethoscope"
+    featured: true
+    servicesOffered: [
+      "Comprehensive health assessments and physical examinations",
+      "Management of chronic diseases (diabetes, hypertension, heart disease)",
+      "Acute illness diagnosis and treatment",
+      "Preventive care and health screenings",
+      "Vaccination and immunization services",
+      "Health education and lifestyle counseling",
+      "Referral coordination with specialists",
+      "Annual wellness visits and check-ups",
+      "Minor surgical procedures",
+      "Travel medicine consultations"
+    ]
+    commonProcedures: {
+      children: [
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Routine Care Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Complete Physical Examinations - Comprehensive health assessments for all ages"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Blood Pressure Monitoring - Regular cardiovascular health assessments"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Blood Sugar Testing - Diabetes screening and monitoring"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          type: "heading"
+          level: 3
+          children: [
+            {
+              text: "Diagnostic and Treatment Procedures"
+            }
+          ]
+        }
+        {
+          type: "bulletList"
+          children: [
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Basic Diagnostic Tests - Point-of-care testing and health screenings"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Wound Care and Minor Procedures - Treatment of cuts, burns, and minor injuries"
+                    }
+                  ]
+                }
+              ]
+            }
+            {
+              type: "listItem"
+              children: [
+                {
+                  type: "paragraph"
+                  children: [
+                    {
+                      text: "Chronic Disease Management - Ongoing care for diabetes, hypertension, and other conditions"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    featured
+    createdAt
+  }
+}

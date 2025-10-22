@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
+import { useHomepageData } from '@/hooks/useCMSData'
 
 // CMS Data - This would typically come from a backend/database
 const cmsData = {
@@ -43,10 +44,10 @@ const cmsData = {
     laboratory: 'Monday to Saturday: 7:00 AM - 7:00 PM, Sunday: 8:00 AM - 2:00 PM'
   },
   contact: {
-    phone: '0798057622',
-    email: 'dohanimedicare@gmail.com',
-    emergencyPhone: '0798057622 (Emergency Line)',
-    location: 'Dohani Medicare Hospital, Open 24 Hours'
+    phone: 'Loading...',
+    email: 'Loading...',
+    emergencyPhone: 'Loading...',
+    location: 'Loading...'
   },
   appointments: {
     howToBook: 'You can book an appointment by calling our reception at 0798057622, sending an email to dohanimedicare@gmail.com, or using our online booking system on the website.',
@@ -74,6 +75,9 @@ const cmsData = {
 }
 
 function ChatBot() {
+  // Get CMS data
+  const { services: cmsServices, contactInfo, workingHours } = useHomepageData()
+
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
@@ -104,12 +108,12 @@ function ChatBot() {
 
     // Check for working hours
     if (lowerMessage.includes('hours') || lowerMessage.includes('time') || lowerMessage.includes('open')) {
-      return `Our working hours are:\n\n🚨 Emergency Services: ${cmsData.workingHours.emergency}\n👨‍⚕️ Consultations: ${cmsData.workingHours.consultation}\n💊 Pharmacy: ${cmsData.workingHours.pharmacy}\n🔬 Laboratory: ${cmsData.workingHours.laboratory}`
+      return `Our working hours are:\n\n🚨 Emergency Services: ${workingHours?.emergency || '24/7 - Open all day, every day'}\n👨‍⚕️ Consultations: ${workingHours?.consultation || 'Monday to Saturday: 8:00 AM - 6:00 PM'}\n💊 Pharmacy: ${workingHours?.pharmacy || '24/7 - Open all day, every day'}\n🔬 Laboratory: ${workingHours?.laboratory || 'Monday to Saturday: 7:00 AM - 7:00 PM'}`
     }
 
     // Check for contact information
     if (lowerMessage.includes('contact') || lowerMessage.includes('phone') || lowerMessage.includes('email') || lowerMessage.includes('call')) {
-      return `You can reach us at:\n\n📞 Phone: ${cmsData.contact.phone}\n🚨 Emergency: ${cmsData.contact.emergencyPhone}\n📧 Email: ${cmsData.contact.email}\n📍 Location: ${cmsData.contact.location}`
+      return `You can reach us at:\n\n📞 Phone: ${contactInfo?.phone || 'Loading...'}\n🚨 Emergency: ${contactInfo?.emergencyPhone || contactInfo?.phone || 'Loading...'}\n📧 Email: ${contactInfo?.email || 'Loading...'}\n📍 Location: ${contactInfo?.location || 'Loading...'}`
     }
 
     // Check for appointments
@@ -123,10 +127,16 @@ function ChatBot() {
     }
 
     // Check for specific services
-    for (const service of cmsData.services) {
-      for (const keyword of service.keywords) {
-        if (lowerMessage.includes(keyword)) {
-          return `${service.name}:\n\n${service.description}\n\nWould you like to book an appointment for this service?`
+    if (cmsServices && cmsServices.length > 0) {
+      for (const service of cmsServices) {
+        for (const keyword of service.keywords || []) {
+          if (lowerMessage.includes(keyword.toLowerCase())) {
+            return `${service.title}:\n\n${service.description}\n\nWould you like to book an appointment for this service?`
+          }
+        }
+        // Also check service name
+        if (lowerMessage.includes(service.title.toLowerCase())) {
+          return `${service.title}:\n\n${service.description}\n\nWould you like to book an appointment for this service?`
         }
       }
     }
@@ -149,7 +159,7 @@ function ChatBot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY}`
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY || ''}`
         },
         body: JSON.stringify({
           model: 'gpt-4.1-mini',
@@ -163,19 +173,19 @@ IMPORTANT: You are NOT a replacement for professional medical diagnosis. Always 
 Here is the information you should use to answer questions:
 
 SERVICES:
-${cmsData.services.map(s => `- ${s.name}: ${s.description}`).join('\n')}
+${cmsServices && cmsServices.length > 0 ? cmsServices.map(s => `- ${s.title}: ${s.description}`).join('\n') : 'Loading services...'}
 
 WORKING HOURS:
-- Emergency Services: ${cmsData.workingHours.emergency}
-- Consultations: ${cmsData.workingHours.consultation}
-- Pharmacy: ${cmsData.workingHours.pharmacy}
-- Laboratory: ${cmsData.workingHours.laboratory}
+- Emergency Services: ${workingHours?.emergency || '24/7 - Open all day, every day'}
+- Consultations: ${workingHours?.consultation || 'Monday to Saturday: 8:00 AM - 6:00 PM'}
+- Pharmacy: ${workingHours?.pharmacy || '24/7 - Open all day, every day'}
+- Laboratory: ${workingHours?.laboratory || 'Monday to Saturday: 7:00 AM - 7:00 PM'}
 
 CONTACT:
-- Phone: ${cmsData.contact.phone}
-- Emergency: ${cmsData.contact.emergencyPhone}
-- Email: ${cmsData.contact.email}
-- Location: ${cmsData.contact.location}
+- Phone: ${contactInfo?.phone || 'Loading...'}
+- Emergency: ${contactInfo?.emergencyPhone || contactInfo?.phone || 'Loading...'}
+- Email: ${contactInfo?.email || 'Loading...'}
+- Location: ${contactInfo?.location || 'Loading...'}
 
 APPOINTMENTS:
 ${cmsData.appointments.howToBook}
@@ -209,7 +219,7 @@ Keep responses concise and helpful. Use emojis sparingly for clarity.`
       const data = await response.json()
       return data.choices[0].message.content
     } catch (error) {
-      console.error('AI API Error:', error)
+      // console.error('AI API Error:', error)
       // Fallback to local response
       return getLocalResponse(userMessage)
     }
@@ -220,7 +230,7 @@ Keep responses concise and helpful. Use emojis sparingly for clarity.`
 
     const userMessage = input.trim()
     setInput('')
-    
+
     // Add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
@@ -228,11 +238,11 @@ Keep responses concise and helpful. Use emojis sparingly for clarity.`
     try {
       // Try AI response first, fallback to local if it fails
       const response = await getAIResponse(userMessage)
-      
+
       // Add assistant response
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch (error) {
-      console.error('Error getting response:', error)
+      // console.error('Error getting response:', error)
       const fallbackResponse = getLocalResponse(userMessage)
       setMessages(prev => [...prev, { role: 'assistant', content: fallbackResponse }])
     } finally {
@@ -272,7 +282,7 @@ Keep responses concise and helpful. Use emojis sparingly for clarity.`
                 <span className="text-xs text-blue-100">Online • Typically replies instantly</span>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setIsOpen(false)}
               className="hover:bg-white/20 p-2 rounded-full transition-colors"
               aria-label="Close chat"
@@ -297,11 +307,10 @@ Keep responses concise and helpful. Use emojis sparingly for clarity.`
                     )}
                   </div>
                   <div
-                    className={`p-3 rounded-2xl ${
-                      message.role === 'user'
-                        ? 'bg-blue-600 text-white rounded-tr-none'
-                        : 'bg-white text-gray-800 rounded-tl-none shadow-sm'
-                    }`}
+                    className={`p-3 rounded-2xl ${message.role === 'user'
+                      ? 'bg-blue-600 text-white rounded-tr-none'
+                      : 'bg-white text-gray-800 rounded-tl-none shadow-sm'
+                      }`}
                   >
                     <p className="text-sm whitespace-pre-line">{message.content}</p>
                   </div>

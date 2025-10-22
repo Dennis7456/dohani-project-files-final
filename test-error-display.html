@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Error Display</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .error { background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #dcfce7; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .warning { background: #fefce8; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .retry-btn { background: #2563eb; color: white; }
+        .edit-btn { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Error Display Test</h1>
+    
+    <h2>What You Should See Now:</h2>
+    
+    <div class="error">
+        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <span style="color: #dc2626; margin-right: 8px;">⚠️</span>
+            <strong style="color: #dc2626;">Booking Error</strong>
+        </div>
+        <p style="color: #dc2626; margin-bottom: 12px;">Unable to connect to our booking system. Your appointment has been saved locally.</p>
+        
+        <div class="warning" style="margin-bottom: 12px;">
+            <p style="color: #ca8a04; margin: 0;">
+                <strong>📋 Your Information is Safe:</strong><br>
+                Your appointment information has been preserved and will be processed once our system is available.
+            </p>
+        </div>
+        
+        <div>
+            <button class="retry-btn">Try Again</button>
+            <button class="edit-btn">Continue Editing</button>
+        </div>
+        
+        <details style="margin-top: 12px;">
+            <summary style="font-size: 12px; color: #6b7280; cursor: pointer;">Technical Details</summary>
+            <p style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Response not successful: Received status code 400</p>
+        </details>
+    </div>
+    
+    <h2>Instead of Success Message:</h2>
+    <div class="success">
+        <p style="color: #166534;">✅ Appointment Booked Successfully! (This should NOT appear)</p>
+    </div>
+    
+    <h2>Current Status:</h2>
+    <ul>
+        <li>✅ <strong>Error Detection</strong>: HTTP 400 properly caught</li>
+        <li>✅ <strong>Fallback Storage</strong>: 7 appointments preserved locally</li>
+        <li>✅ <strong>Error Handling</strong>: Proper error response structure</li>
+        <li>⚠️ <strong>UI Display</strong>: Should show error message above</li>
+    </ul>
+    
+    <h2>Next Steps:</h2>
+    <ol>
+        <li><strong>Check your appointment booking form</strong> - You should see the error message</li>
+        <li><strong>Click "Try Again"</strong> - It will retry with the same data</li>
+        <li><strong>Fix the root cause</strong>:
+            <ul>
+                <li>Refresh Hygraph token (5 min)</li>
+                <li>Create Appointment schema (10 min)</li>
+            </ul>
+        </li>
+        <li><strong>Test again</strong> - Should show true success</li>
+    </ol>
+    
+    <h2>Root Cause:</h2>
+    <p>The <strong>HTTP 400 error</strong> indicates either:</p>
+    <ul>
+        <li>❌ <strong>Expired/Invalid Token</strong> - Need to refresh in Hygraph</li>
+        <li>❌ <strong>Missing Schema</strong> - Need to create Appointment model</li>
+        <li>❌ <strong>Field Mismatch</strong> - Schema fields don't match mutation</li>
+    </ul>
+    
+    <p><strong>The error handling is working correctly!</strong> Your system is now honest about failures and provides proper retry options.</p>
+</body>
+</html>

@@ -55,3 +55,8 @@ MANIFEST
 # Python lib directories (but not src/lib)
 /lib/
 /lib64/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
